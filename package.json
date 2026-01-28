@@ -2,10 +2,15 @@
     "name": "monorepo",
     "private": true,
     "scripts": {
+        "build": "turbo build",
+        "check-types": "turbo check-types",
+        "dev": "turbo dev",
         "format": "biome format --write .",
+        "lint": "turbo lint",
         "lint-staged": "lint-staged",
         "prepare": "husky",
-        "sort-package-json": "sort-package-json \"**/package.json\""
+        "sort-package-json": "sort-package-json \"**/package.json\"",
+        "start": "turbo start"
     },
     "devDependencies": {
         "@biomejs/biome": "^2.3.13",

@@ -1,0 +1,10 @@
+{
+    "extends": "@repo/tsconfig",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "baseUrl": "./",
+        "paths": {
+            "@/*": ["./src/*"]
+        }
+    }
+}
