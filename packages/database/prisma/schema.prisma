@@ -1,0 +1,126 @@
+generator client {
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["postgresqlExtensions"]
+  moduleFormat    = "cjs"
+}
+
+datasource db {
+  provider   = "postgresql"
+  extensions = [pgvector(map: "vector")]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+
+  memberships ProjectMember[]
+
+  @@map("users")
+}
+
+model Project {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  deletedAt DateTime?
+
+  members ProjectMember[]
+  videos  Video[]
+
+  @@map("projects")
+}
+
+enum ProjectMemberRole {
+  OWNER
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+model ProjectMember {
+  userId    String
+  projectId String
+  role      ProjectMemberRole @default(VIEWER)
+  createdAt DateTime          @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  project Project @relation(fields: [projectId], references: [id])
+
+  @@unique([userId, projectId])
+  @@map("project_members")
+}
+
+enum VideoStatus {
+  UPLOADING
+  PROCESSING
+  READY
+  FAILED
+}
+
+model Video {
+  id         String      @id @default(cuid())
+  projectId  String
+  title      String
+  storageKey String      @unique
+  status     VideoStatus @default(UPLOADING)
+  duration   Float
+  createdAt  DateTime    @default(now())
+
+  metadata Json?
+
+  chunks Chunk[]
+  jobs   Job[]
+
+  project Project @relation(fields: [projectId], references: [id])
+
+  @@map("videos")
+}
+
+model Chunk {
+  id        String                      @id @default(cuid())
+  videoId   String
+  startTime Float
+  endTime   Float
+  text      String                      @db.Text
+  embedding Unsupported("vector(1536)")
+
+  video Video @relation(fields: [videoId], references: [id])
+
+  @@map("chunks")
+}
+
+enum JobType {
+  TRASCODE
+  EXTRACT_AUDIO
+  TRANSCRIBE
+  GENERATE_EMBEDDINGS
+}
+
+enum JobStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+model Job {
+  id         String    @id @default(cuid())
+  videoId    String
+  type       JobType
+  priority   Int       @default(0)
+  attempts   Int       @default(0)
+  maxRetries Int       @default(3)
+  lastError  String?   @db.Text
+  status     JobStatus @default(PENDING)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  payload Json?
+
+  video Video @relation(fields: [videoId], references: [id])
+
+  @@map("jobs")
+}

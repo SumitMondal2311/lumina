@@ -1,6 +1,6 @@
 import * as path from "node:path";
 import * as dotenv from "dotenv";
-import { cleanEnv, num } from "envalid";
+import { cleanEnv, num, str } from "envalid";
 
 dotenv.config({
     path: [
@@ -11,4 +11,5 @@ dotenv.config({
 
 export const env = cleanEnv(process.env, {
     PORT: num(),
+    DATABASE_URL: str(),
 });

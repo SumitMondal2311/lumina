@@ -17,6 +17,10 @@ coverage
 # Vercel
 .vercel
 
+# Git
+.git
+.github
+
 # build Outputs
 .next
 out
@@ -29,23 +33,10 @@ dist
 logs
 *.log
 
-# IDEs & editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
-
-# VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
 # miscellaneous
 .DS_Store
 *.pem
 .lock
+
+# Examples and docs
+docs

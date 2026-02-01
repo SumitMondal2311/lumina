@@ -1,0 +1,30 @@
+{
+    "name": "@repo/database",
+    "version": "0.1.0",
+    "private": true,
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "check-types": "tsc --noEmit",
+        "db:deploy": "prisma migrate deploy",
+        "db:generate": "prisma generate",
+        "db:migrate": "prisma migrate dev",
+        "db:push": "prisma db push",
+        "db:reset": "prisma migrate reset",
+        "db:studio": "prisma studio",
+        "lint": "biome lint src",
+        "lint:fix": "biome lint --write src"
+    },
+    "dependencies": {
+        "@prisma/adapter-pg": "^7.3.0",
+        "@prisma/client": "^7.3.0",
+        "dotenv": "^17.2.3",
+        "pg": "^8.17.2"
+    },
+    "devDependencies": {
+        "@repo/tsconfig": "workspace:*",
+        "@types/pg": "^8.16.0",
+        "prisma": "^7.3.0"
+    }
+}
