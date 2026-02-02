@@ -1,0 +1,20 @@
+{
+    "name": "@repo/queue",
+    "version": "0.1.0",
+    "private": true,
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "lint": "biome lint src",
+        "lint:fix": "biome lint --write src"
+    },
+    "dependencies": {
+        "bullmq": "^5.67.2",
+        "dotenv": "^17.2.3",
+        "ioredis": "^5.9.2"
+    },
+    "devDependencies": {
+        "@repo/tsconfig": "workspace:*"
+    }
+}

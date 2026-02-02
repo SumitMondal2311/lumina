@@ -45,8 +45,19 @@
             "cache": false,
             "interactive": true
         },
+        "@repo/queue#build": {
+            "inputs": ["../../.env"],
+            "env": ["REDIS_HOST", "REDIS_PORT"],
+            "outputs": ["dist/**"]
+        },
+        "@repo/validators#build": {
+            "outputs": ["dist/**"]
+        },
         "lint": {
             "dependsOn": ["^lint"]
+        },
+        "lint:fix": {
+            "dependsOn": ["^lint:fix"]
         },
         "check-types": {
             "dependsOn": ["^check-types"]

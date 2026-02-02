@@ -12,6 +12,9 @@
         "sort-package-json": "sort-package-json \"**/package.json\"",
         "start": "turbo start"
     },
+    "dependencies": {
+        "zod": "^4.3.6"
+    },
     "devDependencies": {
         "@biomejs/biome": "^2.3.13",
         "@types/node": "^22.15.3",
