@@ -1,18 +1,17 @@
 {
-    "name": "@repo/queue",
+    "name": "@repo/validators",
     "version": "0.1.0",
     "private": true,
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
     "scripts": {
         "build": "tsc",
+        "check-types": "tsc --noEmit",
         "lint": "biome lint src",
         "lint:fix": "biome lint --write src"
     },
     "dependencies": {
-        "bullmq": "catalog:",
-        "dotenv": "catalog:",
-        "ioredis": "^5.9.2"
+        "zod": "catalog:"
     },
     "devDependencies": {
         "@repo/tsconfig": "workspace:*"

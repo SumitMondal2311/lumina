@@ -2,6 +2,6 @@
     "$schema": "https://biomejs.dev/schemas/2.3.13/schema.json",
     "extends": "//",
     "files": {
-        "includes": ["src/*.ts"]
+        "includes": ["src/*.ts", "*.json", "prisma.config.ts", "biome.jsonc"]
     }
 }

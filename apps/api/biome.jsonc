@@ -2,18 +2,18 @@
     "$schema": "https://biomejs.dev/schemas/2.3.13/schema.json",
     "extends": "//",
     "files": {
-        "includes": ["src/**/*.ts"]
+        "includes": ["src/**/*.ts", "*.json", "biome.jsonc"]
+    },
+    "javascript": {
+        "parser": {
+            "unsafeParameterDecoratorsEnabled": true
+        }
     },
     "linter": {
         "rules": {
             "style": {
                 "useImportType": "off"
             }
-        }
-    },
-    "javascript": {
-        "parser": {
-            "unsafeParameterDecoratorsEnabled": true
         }
     }
 }

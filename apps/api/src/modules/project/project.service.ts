@@ -3,7 +3,7 @@ import { ProjectMemberRole, prisma } from "@repo/database";
 
 @Injectable()
 export class ProjectService {
-    async createProject() {
+    async createProject(name: string) {
         const user = await prisma.user.findUnique({
             where: { id: "cml47bdlc00003b654gin7i9d" },
             select: { id: true },
@@ -15,7 +15,7 @@ export class ProjectService {
 
         return await prisma.$transaction(async (tx) => {
             const newProject = await tx.project.create({
-                data: { name: "Dummy Project" },
+                data: { name },
                 select: { id: true },
             });
 
