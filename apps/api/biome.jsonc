@@ -3,5 +3,17 @@
     "extends": "//",
     "files": {
         "includes": ["src/**/*.ts"]
+    },
+    "linter": {
+        "rules": {
+            "style": {
+                "useImportType": "off"
+            }
+        }
+    },
+    "javascript": {
+        "parser": {
+            "unsafeParameterDecoratorsEnabled": true
+        }
     }
 }
