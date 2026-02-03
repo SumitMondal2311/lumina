@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import {
     type CreateProjectSchema,
     createProjectSchema,
@@ -17,5 +17,10 @@ export class ProjectController {
         dto: CreateProjectSchema,
     ) {
         return this.service.createProject(dto.name);
+    }
+
+    @Get(":id/videos")
+    getVideos(@Param("id") projectId: string) {
+        return this.service.getVideos(projectId);
     }
 }

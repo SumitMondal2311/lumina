@@ -8,3 +8,12 @@ export const createProjectSchema = z.object({
 });
 
 export type CreateProjectSchema = z.infer<typeof createProjectSchema>;
+
+export const uploadSuccessSchema = z.object({
+    objectKey: z
+        .string({ error: "Storage key is required" })
+        .trim()
+        .nonempty("Enter storage key"),
+});
+
+export type UploadSuccessSchema = z.infer<typeof uploadSuccessSchema>;

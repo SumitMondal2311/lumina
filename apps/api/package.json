@@ -11,6 +11,8 @@
         "start": "node dist/main"
     },
     "dependencies": {
+        "@aws-sdk/client-s3": "^3.981.0",
+        "@aws-sdk/s3-request-presigner": "^3.981.0",
         "@nestjs/common": "^11.0.1",
         "@nestjs/core": "^11.0.1",
         "@nestjs/platform-express": "^11.0.1",
@@ -30,6 +32,7 @@
         "@nestjs/testing": "^11.0.1",
         "@repo/database": "workspace:*",
         "@repo/tsconfig": "workspace:*",
+        "@repo/queue": "workspace:*",
         "@repo/validators": "workspace:*",
         "@types/express": "^5.0.0",
         "@types/node": "^22.10.7",

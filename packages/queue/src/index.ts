@@ -13,6 +13,8 @@ export const connection = new Redis({
 });
 
 export const videoProcessingQueueName = "video-processing";
+export type VideoProcessingQueueData = { jobId: string; videoId: string };
+
 export const videoProcessingQueue = new Queue(videoProcessingQueueName, {
     connection,
 });

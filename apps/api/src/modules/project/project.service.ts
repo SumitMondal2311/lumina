@@ -30,4 +30,20 @@ export class ProjectService {
             });
         });
     }
+
+    async getVideos(projectId: string) {
+        const project = await prisma.project.findUnique({
+            where: { id: projectId, deletedAt: { equals: null } },
+            select: { id: true },
+        });
+
+        if (!project) {
+            throw new NotFoundException({ message: "Project not found!" });
+        }
+
+        return prisma.video.findMany({
+            where: { projectId },
+            select: { id: true, title: true, status: true },
+        });
+    }
 }

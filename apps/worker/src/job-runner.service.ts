@@ -1,6 +1,10 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { JobStatus, JobType, prisma, VideoStatus } from "@repo/database";
-import { connection, videoProcessingQueueName } from "@repo/queue";
+import {
+    connection,
+    VideoProcessingQueueData,
+    videoProcessingQueueName,
+} from "@repo/queue";
 import { Worker } from "bullmq";
 
 @Injectable()
@@ -10,7 +14,7 @@ export class JobRunnerService {
 
     private sleep() {
         return new Promise((res) =>
-            setTimeout(res, Math.floor(Math.random() * 6) + 3),
+            setTimeout(res, (Math.floor(Math.random() * 6) + 5) * 1000),
         );
     }
 
@@ -20,10 +24,11 @@ export class JobRunnerService {
         this.worker = new Worker(
             videoProcessingQueueName,
             async (bullJob) => {
-                const { jobId, videoId } = bullJob.data;
+                const { videoId, jobId } =
+                    bullJob.data as VideoProcessingQueueData;
 
                 await prisma.job.update({
-                    where: { id: jobId, status: JobStatus.PENDING },
+                    where: { videoId, id: jobId, status: JobStatus.PENDING },
                     data: { status: JobStatus.IN_PROGRESS },
                 });
 
@@ -54,6 +59,8 @@ export class JobRunnerService {
                 this.logger.log(
                     `Completed ${bullJob.name} for video ${videoId}`,
                 );
+
+                await this.reconcileVideo(videoId);
             },
             {
                 connection,

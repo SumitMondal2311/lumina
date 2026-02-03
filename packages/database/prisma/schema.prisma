@@ -60,13 +60,13 @@ enum VideoStatus {
 }
 
 model Video {
-  id         String      @id @default(cuid())
-  projectId  String
-  title      String      @default("Untitled")
-  storageKey String?     @unique // e.g., S3 object key
-  status     VideoStatus @default(UPLOADING)
-  duration   Float? // Duration in seconds
-  createdAt  DateTime    @default(now())
+  id        String      @id @default(cuid())
+  projectId String
+  title     String      @default("Untitled")
+  objectKey String?     @unique // e.g., S3 object key
+  status    VideoStatus @default(UPLOADING)
+  duration  Float? // Duration in seconds
+  createdAt DateTime    @default(now())
 
   metadata  Json? // Additional video metadata
   deletedAt DateTime?
