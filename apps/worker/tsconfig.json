@@ -1,0 +1,6 @@
+{
+    "extends": "@repo/tsconfig/nest",
+    "compilerOptions": {
+        "outDir": "./dist"
+    }
+}

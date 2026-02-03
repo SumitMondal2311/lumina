@@ -7,18 +7,21 @@
             "dependsOn": ["^dev"]
         },
         "build": {
-            "dependsOn": ["^build"],
-            "inputs": ["./.env"]
+            "dependsOn": ["^build"]
         },
         "start": {
             "dependsOn": ["^start"]
         },
         "api#build": {
+            "inputs": ["./.env"],
             "env": ["PORT", "DATABASE_URL"],
             "outputs": ["dist/**"]
         },
+        "worker#build": {
+            "outputs": ["dist/**"]
+        },
         "@repo/database#build": {
-            "inputs": ["./src/generated/prisma/**"],
+            "inputs": ["./src/generated/prisma/**", "../../.env"],
             "env": ["DATABASE_URL"],
             "outputs": ["dist/**"]
         },
