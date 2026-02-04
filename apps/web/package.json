@@ -6,16 +6,16 @@
         "build": "next build",
         "check-types": "tsc --noEmit",
         "dev": "next dev",
-        "start": "next start",
         "format": "biome format --write .",
         "lint": "biome lint src",
-        "lint:fix": "biome lint --write src"
+        "lint:fix": "biome lint --write src",
+        "start": "next start"
     },
     "dependencies": {
         "@repo/ui": "workspace:*",
+        "dotenv": "catalog:",
         "lucide-react": "catalog:",
         "next": "16.1.6",
-        "dotenv": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
         "tailwindcss": "^4"

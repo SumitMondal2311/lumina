@@ -5,6 +5,18 @@
         "enabled": true,
         "useIgnoreFile": true
     },
+    "files": {
+        "ignoreUnknown": true,
+        "includes": [
+            "**",
+            ".husky",
+            ".turbo",
+            "!node_modules",
+            "docker-compose.yaml",
+            "pnpm-lock.yaml",
+            "pnpm-workspace.yaml"
+        ]
+    },
     "formatter": {
         "enabled": true,
         "indentStyle": "space",

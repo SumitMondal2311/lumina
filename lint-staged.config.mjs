@@ -1,5 +1,3 @@
 export default {
-    "**/package.json --ignore **/node_modules/**/package.json":
-        "sort-package-json",
-    ".": "biome format --write",
+    "**/*.{json,mjs,js,ts,jsx,tsx}": "biome format --write",
 };

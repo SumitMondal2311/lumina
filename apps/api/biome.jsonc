@@ -2,7 +2,8 @@
     "$schema": "https://biomejs.dev/schemas/2.3.14/schema.json",
     "extends": "//",
     "files": {
-        "includes": ["src/**/*.ts", "*.json", "biome.jsonc"]
+        "ignoreUnknown": true,
+        "includes": ["**", ".turbo", "!node_modules", "!dist", "!out", "!build"]
     },
     "javascript": {
         "parser": {

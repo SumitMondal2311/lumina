@@ -5,8 +5,8 @@
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
     "scripts": {
-        "check-types": "tsc --noEmit",
         "build": "tsc",
+        "check-types": "tsc --noEmit",
         "lint": "biome lint src",
         "lint:fix": "biome lint --write src"
     },
