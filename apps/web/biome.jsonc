@@ -1,0 +1,31 @@
+{
+    "$schema": "https://biomejs.dev/schemas/2.3.14/schema.json",
+    "extends": "//",
+    "files": {
+        "ignoreUnknown": true,
+        "includes": [
+            "**",
+            "!node_modules",
+            "!.next",
+            "!dist",
+            "!out",
+            "!build",
+            "!src/styles/local.css"
+        ]
+    },
+    "linter": {
+        "rules": {
+            "style": {
+                "useImportType": "off"
+            },
+            "suspicious": {
+                "noArrayIndexKey": "off",
+                "noUnknownAtRules": "off"
+            }
+        },
+        "domains": {
+            "next": "recommended",
+            "react": "recommended"
+        }
+    }
+}

@@ -1,5 +1,12 @@
 # dependencies
 node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
 # local env files
 .env
@@ -14,9 +21,6 @@ coverage
 # Turbo
 .turbo
 
-# Vercel
-.vercel
-
 # build Outputs
 .next
 out
@@ -30,12 +34,12 @@ logs
 *.log
 
 # IDEs & editors
-/.idea
+.idea
 .project
 .classpath
-.c9/
+.c9
 *.launch
-.settings/
+.settings
 *.sublime-workspace
 
 # VSCode

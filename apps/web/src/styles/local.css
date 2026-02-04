@@ -1,0 +1,10 @@
+@theme inline {
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jet-brains-mono);
+}
+
+@layer base {
+  * {
+    @apply font-sans;
+  }
+}
