@@ -7,42 +7,42 @@ import {
 } from "@nestjs/common";
 import { prisma } from "@repo/database";
 
-import { AuthRequest, type ProjectScopedRequest } from "../types";
+import { AuthRequest, VideoScopedRequest } from "../types";
 
 @Injectable()
-export class ProjectGuard implements CanActivate {
+export class VideoGuard implements CanActivate {
     async canActivate(ctx: ExecutionContext): Promise<boolean> {
         const req = ctx
             .switchToHttp()
-            .getRequest<AuthRequest & ProjectScopedRequest>();
+            .getRequest<AuthRequest & VideoScopedRequest>();
 
-        const projectId = req.params.id;
-        if (!projectId) {
+        const videoId = req.params.id;
+        if (!videoId) {
             throw new BadRequestException({
                 message: "Missing required params.",
             });
         }
 
-        if (typeof projectId !== "string") {
+        if (typeof videoId !== "string") {
             throw new BadRequestException({
                 message: "Invalid params type.",
             });
         }
 
-        const membership = await prisma.projectMember.findFirst({
-            where: { userId: req.user.id, projectId },
-            omit: { userId: true, projectId: true },
-            include: { project: true },
+        const video = await prisma.video.findFirst({
+            where: {
+                id: videoId,
+                project: { members: { some: { userId: req.user.id } } },
+            },
         });
 
-        if (!membership) {
+        if (!video) {
             throw new ForbiddenException({
                 message: "Action not permitted",
             });
         }
 
-        const { project, ...restOfMembership } = membership;
-        req.project = { ...project, membership: restOfMembership };
+        req.video = video;
         return true;
     }
 }

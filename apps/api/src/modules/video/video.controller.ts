@@ -3,63 +3,51 @@ import {
     Controller,
     Get,
     HttpCode,
-    Param,
     Post,
     Req,
     UseGuards,
 } from "@nestjs/common";
 import {
-    type UploadSuccessSchema,
-    uploadSuccessSchema,
+    type UploadCompleteSuccessSchema,
+    uploadCompleteSuccessSchema,
 } from "@repo/validators";
 
-import { ProjectGuard } from "@/common/guards";
+import { AuthGuard, VideoGuard } from "@/common/guards";
 import { ZodValidationPipe } from "@/common/pipes";
-import type { ProjectScopedRequest } from "@/common/types";
+import type { VideoScopedRequest } from "@/common/types";
 import { VideoService } from "./video.service";
 
-@UseGuards(ProjectGuard)
+@UseGuards(AuthGuard, VideoGuard)
 @Controller("videos")
 export class VideoController {
     constructor(private service: VideoService) {}
 
-    @Post()
-    createVideo(@Req() req: ProjectScopedRequest) {
-        return this.service.createVideo(req.project.id);
+    @Get(":id/status")
+    getVideoStatus(@Req() req: VideoScopedRequest) {
+        const { id: videoId, status } = req.video;
+        return this.service.getVideoStatus({ videoId, videoStatus: status });
     }
 
     @Get(":id")
-    getVideoStatus(
-        @Req() req: ProjectScopedRequest,
-        @Param("id") videoId: string,
-    ) {
-        return this.service.getVideo({ videoId, projectId: req.project.id });
-    }
-
-    @Get(":id")
-    getVideo(@Req() req: ProjectScopedRequest, @Param("id") videoId: string) {
-        return this.service.getVideo({ videoId, projectId: req.project.id });
+    getVideo(@Req() req: VideoScopedRequest) {
+        return req.video;
     }
 
     @Post(":id/upload-url")
     @HttpCode(200)
-    uploadUrl(@Req() req: ProjectScopedRequest, @Param("id") videoId: string) {
-        return this.service.uploadUrl({ projectId: req.project.id, videoId });
+    uploadUrl(@Req() req: VideoScopedRequest) {
+        return this.service.uploadUrl(req.video.id);
     }
 
     @Post(":id/upload-complete")
     @HttpCode(200)
     async uploadComplete(
-        @Req() req: ProjectScopedRequest,
-        @Param("id") videoId: string,
-        @Body(new ZodValidationPipe(uploadSuccessSchema))
-        dto: UploadSuccessSchema,
+        @Req() req: VideoScopedRequest,
+        @Body(new ZodValidationPipe(uploadCompleteSuccessSchema))
+        dto: UploadCompleteSuccessSchema,
     ) {
-        await this.service.uploadComplete({
-            projectId: req.project.id,
-            videoId,
-            objectKey: dto.objectKey,
-        });
+        const { id: videoId, projectId } = req.video;
+        await this.service.uploadComplete({ ...dto, projectId, videoId });
 
         return { success: true };
     }

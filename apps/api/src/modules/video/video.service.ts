@@ -1,7 +1,7 @@
 // import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 // import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import {
-    BadRequestException,
+    ConflictException,
     Injectable,
     NotFoundException,
 } from "@nestjs/common";
@@ -12,38 +12,13 @@ import { generateObjectKey } from "@/common/utils";
 
 @Injectable()
 export class VideoService {
-    async createVideo(projectId: string) {
-        const project = await prisma.project.findUnique({
-            where: { id: projectId },
-            select: { id: true },
-        });
-
-        if (!project) {
-            throw new NotFoundException({ message: "Project not found!" });
-        }
-
-        return prisma.video.create({
-            data: { projectId },
-            omit: { projectId: true },
-        });
-    }
-
-    async getVideo({
-        projectId,
+    async getVideoStatus({
+        videoStatus,
         videoId,
     }: {
-        projectId: string;
+        videoStatus: VideoStatus;
         videoId: string;
     }) {
-        const video = await prisma.video.findFirst({
-            where: { projectId, id: videoId, deletedAt: { equals: null } },
-            omit: { objectKey: true, projectId: true },
-        });
-
-        if (!video) {
-            throw new NotFoundException({ message: "Video not found!" });
-        }
-
         const jobs = await prisma.job.findMany({
             where: { videoId },
             select: { status: true },
@@ -59,35 +34,20 @@ export class VideoService {
             0,
         );
 
-        if (video.status === VideoStatus.PROCESSING) {
+        if (videoStatus === VideoStatus.PROCESSING) {
             return {
-                ...video,
+                status: videoStatus,
                 progress:
                     totalJobs === 0
                         ? 0
-                        : Math.floor(completedJobs / totalJobs) * 100,
+                        : Math.floor((completedJobs / totalJobs) * 100),
             };
         }
 
-        return video;
+        return { status: videoStatus };
     }
 
-    async uploadUrl({
-        projectId,
-        videoId,
-    }: {
-        projectId: string;
-        videoId: string;
-    }) {
-        const video = await prisma.video.findFirst({
-            where: { id: videoId, projectId, status: VideoStatus.UPLOADING },
-            select: { id: true },
-        });
-
-        if (!video) {
-            throw new NotFoundException({ message: "Video not found!" });
-        }
-
+    async uploadUrl(videoId: string) {
         // TODO:
         // const client = new S3Client({ region: "us-east-1" });
         // const command = new PutObjectCommand({
@@ -114,9 +74,17 @@ export class VideoService {
         videoId: string;
         objectKey: string;
     }) {
-        const expectedObjectKey = generateObjectKey(videoId);
-        if (objectKey !== expectedObjectKey) {
-            throw new BadRequestException({ message: "Object key mismatch." });
+        // const expectedObjectKey = generateObjectKey(videoId);
+        // if (objectKey !== expectedObjectKey) {
+        //     throw new BadRequestException({ message: "Object key mismatch." });
+        // }
+
+        const isVideoExists = await prisma.video.findFirst({
+            where: { objectKey, projectId },
+        });
+
+        if (isVideoExists) {
+            throw new ConflictException({ message: "Video already exists!" });
         }
 
         const jobs = await prisma.$transaction(async (tx) => {
