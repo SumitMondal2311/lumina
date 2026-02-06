@@ -3,6 +3,7 @@ import { cn } from "@repo/ui/lib/utils";
 import { Inter, JetBrains_Mono } from "next/font/google";
 
 import "../styles/local.css";
+import QueryProvider from "@/providers/query-provider";
 
 const inter = Inter({
     variable: "--font-inter",
@@ -14,7 +15,7 @@ const jetbrainsMono = JetBrains_Mono({
     subsets: ["latin"],
 });
 
-export default function RootLayout({
+export default function Layout({
     children,
 }: Readonly<{
     children: React.ReactNode;
@@ -28,7 +29,7 @@ export default function RootLayout({
                     "antialiased",
                 )}
             >
-                {children}
+                <QueryProvider>{children}</QueryProvider>
             </body>
         </html>
     );

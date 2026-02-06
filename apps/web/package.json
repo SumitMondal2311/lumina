@@ -13,6 +13,8 @@
     },
     "dependencies": {
         "@repo/ui": "workspace:*",
+        "@tanstack/react-query": "^5.90.20",
+        "axios": "^1.13.4",
         "dotenv": "catalog:",
         "lucide-react": "catalog:",
         "next": "16.1.6",
@@ -22,6 +24,8 @@
     },
     "devDependencies": {
         "@repo/tsconfig": "workspace:*",
+        "@repo/validators": "workspace:*",
+        "@repo/database": "workspace:*",
         "@types/react": "^19",
         "@types/react-dom": "^19",
         "babel-plugin-react-compiler": "1.0.0"

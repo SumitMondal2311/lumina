@@ -10,7 +10,7 @@
         "format": "biome format --write .",
         "lint": "turbo lint",
         "lint-staged": "lint-staged",
-        "packages:build": "turbo build --filter @repo/**",
+        "pkgs:build": "turbo build --filter @repo/**",
         "prepare": "husky",
         "sort-pkg-json": "sort-package-json **/package.json --ignore **/node_modules/**/package.json",
         "start": "turbo start"
