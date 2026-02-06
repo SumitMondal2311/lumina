@@ -1,14 +1,18 @@
-// import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-// import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import {
+    BadRequestException,
     ConflictException,
     Injectable,
     NotFoundException,
 } from "@nestjs/common";
 import { JobStatus, JobType, prisma, VideoStatus } from "@repo/database";
 import { VideoProcessingQueueData, videoProcessingQueue } from "@repo/queue";
+import { CreateUploadUrlSchema } from "@repo/validators";
+import { extension } from "mime-types";
 
-import { generateObjectKey } from "@/common/utils";
+import { env } from "@/configs/env";
+import { s3 } from "@/infra/s3.client";
 
 @Injectable()
 export class VideoService {
@@ -47,22 +51,33 @@ export class VideoService {
         return { status: videoStatus };
     }
 
-    async uploadUrl(videoId: string) {
-        // TODO:
-        // const client = new S3Client({ region: "us-east-1" });
-        // const command = new PutObjectCommand({
-        //     Bucket: "my-bucket",
-        //     Key: `videos/${videoId}.mp4`,
-        // });
+    async createUploadUrl({
+        projectId,
+        videoId,
+        fileType,
+        fileSize,
+    }: CreateUploadUrlSchema & {
+        projectId: string;
+        videoId: string;
+    }) {
+        // 50MB
+        if (fileSize > 50 * 1000000) {
+            throw new BadRequestException({
+                message: "File size must be under 50 MB",
+            });
+        }
 
-        // const preSignedUrl = await getSignedUrl(client, command, {
-        //     expiresIn: 3600,
-        // });
+        const command = new PutObjectCommand({
+            Bucket: env.AWS_S3_BUCKET_NAME,
+            ContentType: fileType,
+            Key: `uploads/proj_${projectId}/vid_${videoId}.${extension(fileType) ?? "bin"}`,
+        });
 
-        return {
-            objectKey: generateObjectKey(videoId),
-            preSignedUrl: "https://bucket-name.s3.region.amazonaws.com",
-        };
+        const preSignedUrl = await getSignedUrl(s3, command, {
+            expiresIn: 3600, // 1 hr
+        });
+
+        return { objectKey: command.input.Key, preSignedUrl };
     }
 
     async uploadComplete({
@@ -74,11 +89,6 @@ export class VideoService {
         videoId: string;
         objectKey: string;
     }) {
-        // const expectedObjectKey = generateObjectKey(videoId);
-        // if (objectKey !== expectedObjectKey) {
-        //     throw new BadRequestException({ message: "Object key mismatch." });
-        // }
-
         const isVideoExists = await prisma.video.findFirst({
             where: { objectKey, projectId },
         });

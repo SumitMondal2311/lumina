@@ -8,6 +8,8 @@ import {
     UseGuards,
 } from "@nestjs/common";
 import {
+    type CreateUploadUrlSchema,
+    createUploadUrlSchema,
     type UploadCompleteSuccessSchema,
     uploadCompleteSuccessSchema,
 } from "@repo/validators";
@@ -35,8 +37,13 @@ export class VideoController {
 
     @Post(":id/upload-url")
     @HttpCode(200)
-    uploadUrl(@Req() req: VideoScopedRequest) {
-        return this.service.uploadUrl(req.video.id);
+    createUploadUrl(
+        @Req() req: VideoScopedRequest,
+        @Body(new ZodValidationPipe(createUploadUrlSchema))
+        dto: CreateUploadUrlSchema,
+    ) {
+        const { id: videoId, projectId } = req.video;
+        return this.service.createUploadUrl({ ...dto, projectId, videoId });
     }
 
     @Post(":id/upload-complete")

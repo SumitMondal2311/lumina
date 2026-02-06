@@ -10,7 +10,7 @@ export class ProjectService {
                 select: { id: true },
             });
 
-            return tx.projectMember.create({
+            const membership = tx.projectMember.create({
                 data: {
                     role: ProjectMemberRole.OWNER,
                     projectId: newProject.id,
@@ -19,6 +19,9 @@ export class ProjectService {
                 omit: { userId: true, projectId: true },
                 include: { project: true },
             });
+
+            const { project, ...restOfMembership } = membership;
+            return { ...project, membership: restOfMembership };
         });
     }
 
