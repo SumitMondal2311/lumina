@@ -4,13 +4,13 @@ import { ProjectMemberRole, prisma } from "@repo/database";
 @Injectable()
 export class ProjectService {
     async createProject({ userId, name }: { userId: string; name: string }) {
-        return await prisma.$transaction(async (tx) => {
+        const membership = await prisma.$transaction(async (tx) => {
             const newProject = await tx.project.create({
                 data: { name },
                 select: { id: true },
             });
 
-            const membership = tx.projectMember.create({
+            return tx.projectMember.create({
                 data: {
                     role: ProjectMemberRole.OWNER,
                     projectId: newProject.id,
@@ -19,10 +19,10 @@ export class ProjectService {
                 omit: { userId: true, projectId: true },
                 include: { project: true },
             });
-
-            const { project, ...restOfMembership } = membership;
-            return { ...project, membership: restOfMembership };
         });
+
+        const { project, ...restOfMembership } = membership;
+        return { ...project, membership: restOfMembership };
     }
 
     async getProjectsList(userId: string) {

@@ -4,6 +4,7 @@ packages:
 
 catalogs:
   default:
+    envalid: ^8.1.1
     bullmq: ^5.67.2
     dotenv: ^17.2.3
     zod: ^4.3.6

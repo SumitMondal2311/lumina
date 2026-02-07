@@ -109,13 +109,11 @@ enum JobStatus {
 
 // Jobs represent background tasks to be performed on videos, such as transcoding, transcription, etc.
 model Job {
-  id         String    @id @default(cuid())
-  videoId    String
-  type       JobType
-  priority   Int       @default(0)
-  attempts   Int       @default(0)
-  maxRetries Int       @default(3)
-  status     JobStatus @default(PENDING)
+  id       String    @id @default(cuid())
+  videoId  String
+  type     JobType
+  priority Int       @default(0)
+  status   JobStatus @default(PENDING)
 
   payload   Json? // Additional data for the job
   lastError String? @db.Text

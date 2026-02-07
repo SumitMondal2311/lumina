@@ -12,6 +12,9 @@ catalogs:
     dotenv:
       specifier: ^17.2.3
       version: 17.2.3
+    envalid:
+      specifier: ^8.1.1
+      version: 8.1.1
     lucide-react:
       specifier: ^0.563.0
       version: 0.563.0
@@ -78,7 +81,7 @@ importers:
         specifier: 'catalog:'
         version: 17.2.3
       envalid:
-        specifier: ^8.1.1
+        specifier: 'catalog:'
         version: 8.1.1
       helmet:
         specifier: ^8.1.0
@@ -117,6 +120,9 @@ importers:
       '@repo/validators':
         specifier: workspace:*
         version: link:../../packages/validators
+      '@types/cookie-parser':
+        specifier: ^1.4.10
+        version: 1.4.10(@types/express@5.0.6)
       '@types/express':
         specifier: ^5.0.0
         version: 5.0.6
@@ -193,6 +199,12 @@ importers:
       bullmq:
         specifier: 'catalog:'
         version: 5.67.2
+      dotenv:
+        specifier: 'catalog:'
+        version: 17.2.3
+      envalid:
+        specifier: 'catalog:'
+        version: 8.1.1
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -2450,6 +2462,11 @@ packages:
 
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
+
+  '@types/cookie-parser@1.4.10':
+    resolution: {integrity: sha512-B4xqkqfZ8Wek+rCOeRxsjMS9OgvzebEzzLYw7NHYuvzb7IdxOkI0ZHGgeEBX4PUM7QGVvNSK60T3OvWj3YfBRg==}
+    peerDependencies:
+      '@types/express': '*'
 
   '@types/eslint-scope@3.7.7':
     resolution: {integrity: sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==}
@@ -7543,6 +7560,10 @@ snapshots:
   '@types/connect@3.4.38':
     dependencies:
       '@types/node': 25.2.0
+
+  '@types/cookie-parser@1.4.10(@types/express@5.0.6)':
+    dependencies:
+      '@types/express': 5.0.6
 
   '@types/eslint-scope@3.7.7':
     dependencies:

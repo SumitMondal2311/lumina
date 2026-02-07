@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import * as React from "react";
+
 import { apiClient } from "@/lib/api-client";
 
 export default function Page() {
@@ -63,8 +64,6 @@ export default function Page() {
                         <span>Status: {video.status}</span>
                     </Link>
                 ))}
-                {/** biome-ignore lint/a11y/noStaticElementInteractions: <explanation> */}
-                {/** biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
                 <div
                     onClick={() =>
                         mutate(undefined, {

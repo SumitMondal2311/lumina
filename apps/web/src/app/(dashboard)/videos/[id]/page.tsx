@@ -156,8 +156,9 @@ export default function Page() {
 
                                 try {
                                     const uploadConfig = await createUploadUrl({
-                                        fileType: video.type,
-                                        fileSize: video.size,
+                                        videoType:
+                                            video.type as CreateUploadUrlSchema["videoType"],
+                                        videoSize: video.size,
                                     });
 
                                     const res = await fetch(

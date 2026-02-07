@@ -29,8 +29,10 @@ export class ProjectGuard implements CanActivate {
             });
         }
 
-        const membership = await prisma.projectMember.findFirst({
-            where: { userId: req.user.id, projectId },
+        const membership = await prisma.projectMember.findUnique({
+            where: {
+                userId_projectId: { projectId, userId: req.user.id },
+            },
             omit: { userId: true, projectId: true },
             include: { project: true },
         });

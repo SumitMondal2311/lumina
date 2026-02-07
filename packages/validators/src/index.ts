@@ -10,20 +10,20 @@ export const createProjectSchema = z.object({
 export type CreateProjectSchema = z.infer<typeof createProjectSchema>;
 
 export const createUploadUrlSchema = z.object({
-    fileType: z
-        .string({ error: "File type is required" })
-        .trim()
-        .nonempty("Provide file type"),
-    fileSize: z.number({ error: "File size is required" }),
+    videoType: z.enum(
+        ["video/webm", "video/mp4", "video/x-matroska", "video/quicktime"],
+        { error: "Unsupported video type" },
+    ),
+    videoSize: z.number({ error: "Video size is required" }).positive(),
 });
 
 export type CreateUploadUrlSchema = z.infer<typeof createUploadUrlSchema>;
 
 export const uploadCompleteSuccessSchema = z.object({
     objectKey: z
-        .string({ error: "Storage key is required" })
+        .string({ error: "Object key is required" })
         .trim()
-        .nonempty("Enter storage key"),
+        .nonempty("Enter object key"),
 });
 
 export type UploadCompleteSuccessSchema = z.infer<

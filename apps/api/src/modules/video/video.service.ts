@@ -2,7 +2,6 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import {
     BadRequestException,
-    ConflictException,
     Injectable,
     NotFoundException,
 } from "@nestjs/common";
@@ -54,23 +53,23 @@ export class VideoService {
     async createUploadUrl({
         projectId,
         videoId,
-        fileType,
-        fileSize,
+        videoType,
+        videoSize,
     }: CreateUploadUrlSchema & {
         projectId: string;
         videoId: string;
     }) {
         // 50MB
-        if (fileSize > 50 * 1000000) {
+        if (videoSize > 50 * 1000000) {
             throw new BadRequestException({
-                message: "File size must be under 50 MB",
+                message: "Video size must be under 50 MB",
             });
         }
 
         const command = new PutObjectCommand({
             Bucket: env.AWS_S3_BUCKET_NAME,
-            ContentType: fileType,
-            Key: `uploads/proj_${projectId}/vid_${videoId}.${extension(fileType) ?? "bin"}`,
+            ContentType: videoType,
+            Key: `uploads/${projectId}/raw/${videoId}.${extension(videoType) ?? "bin"}`,
         });
 
         const preSignedUrl = await getSignedUrl(s3, command, {
@@ -89,14 +88,6 @@ export class VideoService {
         videoId: string;
         objectKey: string;
     }) {
-        const isVideoExists = await prisma.video.findFirst({
-            where: { objectKey, projectId },
-        });
-
-        if (isVideoExists) {
-            throw new ConflictException({ message: "Video already exists!" });
-        }
-
         const jobs = await prisma.$transaction(async (tx) => {
             const videos = await tx.video.updateMany({
                 where: {
@@ -124,10 +115,17 @@ export class VideoService {
         });
 
         jobs.forEach(async (job) => {
-            await videoProcessingQueue.add(job.type, {
-                videoId,
-                jobId: job.id,
-            } satisfies VideoProcessingQueueData);
+            await videoProcessingQueue.add(
+                job.type,
+                {
+                    videoId,
+                    jobId: job.id,
+                } satisfies VideoProcessingQueueData,
+                {
+                    attempts: 3,
+                    backoff: { type: "exponential", delay: 5000 },
+                },
+            );
         });
     }
 }

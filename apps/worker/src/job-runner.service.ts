@@ -1,57 +1,77 @@
-import { Injectable, Logger } from "@nestjs/common";
+import {
+    Injectable,
+    Logger,
+    OnModuleDestroy,
+    OnModuleInit,
+} from "@nestjs/common";
 import { JobStatus, JobType, prisma, VideoStatus } from "@repo/database";
 import {
     connection,
     VideoProcessingQueueData,
     videoProcessingQueueName,
 } from "@repo/queue";
-import { Worker } from "bullmq";
+import { Job, Worker } from "bullmq";
+import { env } from "./configs/env";
 
 @Injectable()
-export class JobRunnerService {
+export class JobRunnerService implements OnModuleInit, OnModuleDestroy {
     private worker?: Worker;
     private readonly logger = new Logger(JobRunnerService.name);
 
-    private sleep() {
-        return new Promise((res) =>
-            setTimeout(res, (Math.floor(Math.random() * 6) + 5) * 1000),
-        );
+    private sleep(ms: number) {
+        return new Promise((res) => setTimeout(res, ms));
     }
 
-    start() {
+    onModuleInit() {
         if (this.worker) return;
 
         this.worker = new Worker(
             videoProcessingQueueName,
-            async (bullJob) => {
-                const { videoId, jobId } =
-                    bullJob.data as VideoProcessingQueueData;
+            async (bullJob: Job<VideoProcessingQueueData>) => {
+                const { videoId, jobId } = bullJob.data;
 
-                await prisma.job.update({
-                    where: { videoId, id: jobId, status: JobStatus.PENDING },
+                const { count } = await prisma.job.updateMany({
+                    where: {
+                        id: jobId,
+                        status: {
+                            in: [JobStatus.PENDING, JobStatus.IN_PROGRESS],
+                        },
+                    },
                     data: { status: JobStatus.IN_PROGRESS },
                 });
 
-                this.logger.log(`Started ${bullJob.name} for video ${videoId}`);
-
-                switch (bullJob.name) {
-                    case JobType.TRANSCRIBE:
-                        await this.sleep();
-                        break;
-                    case JobType.EXTRACT_AUDIO:
-                        await this.sleep();
-                        break;
-                    case JobType.TRANSCODE:
-                        await this.sleep();
-                        break;
-                    case JobType.GENERATE_EMBEDDINGS:
-                        await this.sleep();
-                        break;
-                    default:
-                        throw new Error(`Unknown job type: ${bullJob.name}`);
+                if (count <= 0) {
+                    return this.logger.warn(
+                        `Job ${jobId} is not in valid state to start. Skipping...`,
+                    );
                 }
 
-                await prisma.job.update({
+                this.logger.log(
+                    `[Attempt ${bullJob.attemptsMade + 1}] Running ${bullJob.name} for video ${videoId}`,
+                );
+
+                if (Math.random() < 0.25) {
+                    throw new Error("Simulated processing failure");
+                }
+
+                switch (bullJob.name) {
+                    case JobType.TRANSCODE:
+                        await this.sleep(8000);
+                        break;
+                    case JobType.EXTRACT_AUDIO:
+                        await this.sleep(3000);
+                        break;
+                    case JobType.TRANSCRIBE:
+                        await this.sleep(5000);
+                        break;
+                    case JobType.GENERATE_EMBEDDINGS:
+                        await this.sleep(2000);
+                        break;
+                    default:
+                        throw new Error(`Unhandled job: ${bullJob.name}`);
+                }
+
+                await prisma.job.updateMany({
                     where: { id: jobId, status: JobStatus.IN_PROGRESS },
                     data: { status: JobStatus.COMPLETED },
                 });
@@ -59,17 +79,44 @@ export class JobRunnerService {
                 this.logger.log(
                     `Completed ${bullJob.name} for video ${videoId}`,
                 );
-
-                await this.reconcileVideo(videoId);
             },
             {
                 connection,
-                concurrency: 4,
+                concurrency: env.isProd ? 4 : 1,
+            },
+        );
+
+        this.worker.on(
+            "completed",
+            async (job: Job<VideoProcessingQueueData>) => {
+                await this.reconcileVideo(job.data.videoId);
+            },
+        );
+
+        this.worker.on(
+            "failed",
+            async (job: Job<VideoProcessingQueueData> | undefined, err) => {
+                if (!job) return;
+                const { videoId, jobId } = job.data;
+
+                this.logger.error(`Job ${jobId} failed: ${err.message}`);
+
+                if (job.attemptsMade >= (job.opts.attempts ?? 1)) {
+                    await prisma.job.update({
+                        where: { id: jobId },
+                        data: {
+                            status: JobStatus.FAILED,
+                            lastError: err.message,
+                        },
+                    });
+
+                    await this.reconcileVideo(videoId);
+                }
             },
         );
     }
 
-    stop() {
+    onModuleDestroy() {
         if (!this.worker) return;
         this.worker.close();
         this.worker = undefined;
@@ -81,9 +128,16 @@ export class JobRunnerService {
             select: { status: true },
         });
 
+        if (jobs.some((job) => job.status === JobStatus.FAILED)) {
+            return prisma.video.update({
+                where: { id: videoId },
+                data: { status: VideoStatus.FAILED },
+            });
+        }
+
         if (jobs.every((job) => job.status === JobStatus.COMPLETED)) {
-            await prisma.video.update({
-                where: { id: videoId, status: VideoStatus.PROCESSING },
+            return prisma.video.update({
+                where: { id: videoId },
                 data: { status: VideoStatus.READY },
             });
         }
