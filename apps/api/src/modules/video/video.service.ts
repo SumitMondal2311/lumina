@@ -1,4 +1,4 @@
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import {
     BadRequestException,
@@ -127,5 +127,19 @@ export class VideoService {
                 },
             );
         });
+    }
+
+    async getPlaybackUrl(objectKey: string) {
+        const playbackExpiresIn = 60 * 60;
+        const playbackUrl = await getSignedUrl(
+            s3,
+            new GetObjectCommand({
+                Bucket: env.AWS_S3_BUCKET_NAME,
+                Key: objectKey,
+            }),
+            { expiresIn: playbackExpiresIn },
+        );
+
+        return { playbackUrl, expiresIn: playbackExpiresIn };
     }
 }

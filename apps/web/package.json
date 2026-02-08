@@ -23,9 +23,9 @@
         "tailwindcss": "^4"
     },
     "devDependencies": {
+        "@repo/database": "workspace:*",
         "@repo/tsconfig": "workspace:*",
         "@repo/validators": "workspace:*",
-        "@repo/database": "workspace:*",
         "@types/react": "^19",
         "@types/react-dom": "^19",
         "babel-plugin-react-compiler": "1.0.0"

@@ -17,7 +17,8 @@
         "rules": {
             "a11y": {
                 "noStaticElementInteractions": "off",
-                "useKeyWithClickEvents": "off"
+                "useKeyWithClickEvents": "off",
+                "useMediaCaption": "off"
             },
             "style": {
                 "useImportType": "off"

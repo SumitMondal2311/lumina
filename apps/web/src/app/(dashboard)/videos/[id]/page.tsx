@@ -31,6 +31,7 @@ export default function Page() {
     >({
         queryKey: [`videos:${videoId}`],
         retry: 0,
+        refetchOnWindowFocus: false,
         queryFn: async () => {
             return (await apiClient.get(`videos/${videoId}`)).data;
         },
@@ -52,6 +53,7 @@ export default function Page() {
     >({
         queryKey: [`videos:${videoId}:status`],
         retry: 0,
+        refetchOnWindowFocus: false,
         refetchInterval: (query) =>
             query.state.data?.status === "UPLOADING" ||
             query.state.data?.status === "READY" ||
@@ -95,6 +97,25 @@ export default function Page() {
             setUploading(false);
         },
     });
+
+    const { data: playbackUrlData, isSuccess: isPlaybackUrlSuccess } = useQuery<
+        { playbackUrl: string; expiresIn: number },
+        AxiosError<{ message: string }>
+    >({
+        queryKey: [`videos:${videoId}:playback-url`],
+        retry: 0,
+        enabled: isVideoStatusSuccess && videoStatusData.status === "READY",
+        refetchOnWindowFocus: false,
+        queryFn: async () => {
+            return (await apiClient.get(`videos/${videoId}/playback-url`)).data;
+        },
+    });
+
+    React.useEffect(() => {
+        if (isPlaybackUrlSuccess) {
+            console.log(playbackUrlData.playbackUrl);
+        }
+    }, [isPlaybackUrlSuccess, playbackUrlData]);
 
     const { mutateAsync: uploadComplete } = useMutation<
         Video,
@@ -201,9 +222,20 @@ export default function Page() {
                             value={videoStatusData.progress}
                             className="w-80"
                         />
-                    ) : (
-                        <span>{videoStatusData.status}</span>
-                    )
+                    ) : videoStatusData.status === "READY" ? (
+                        <div className="aspect-video w-full xl:w-120 px-6">
+                            {isPlaybackUrlSuccess ? (
+                                <video
+                                    key={playbackUrlData.playbackUrl}
+                                    src={playbackUrlData.playbackUrl}
+                                    controls
+                                    className="h-full w-full rounded-md ring-2 ring-blue-500"
+                                />
+                            ) : (
+                                <p>Loading playback...</p>
+                            )}
+                        </div>
+                    ) : null
                 ) : null}
             </div>
         );

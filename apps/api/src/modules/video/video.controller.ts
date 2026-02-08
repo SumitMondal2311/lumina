@@ -1,4 +1,5 @@
 import {
+    BadRequestException,
     Body,
     Controller,
     Get,
@@ -7,13 +8,13 @@ import {
     Req,
     UseGuards,
 } from "@nestjs/common";
+import { VideoStatus } from "@repo/database";
 import {
     type CreateUploadUrlSchema,
     createUploadUrlSchema,
     type UploadCompleteSuccessSchema,
     uploadCompleteSuccessSchema,
 } from "@repo/validators";
-
 import { AuthGuard, VideoGuard } from "@/common/guards";
 import { ZodValidationPipe } from "@/common/pipes";
 import type { VideoScopedRequest } from "@/common/types";
@@ -57,5 +58,23 @@ export class VideoController {
         await this.service.uploadComplete({ ...dto, projectId, videoId });
 
         return { success: true };
+    }
+
+    @Get(":id/playback-url")
+    @HttpCode(200)
+    getPlaybackUrl(@Req() req: VideoScopedRequest) {
+        const { status, objectKey } = req.video;
+        if (status !== VideoStatus.READY) {
+            throw new BadRequestException({
+                message: "Video is not ready for playback",
+            });
+        }
+        if (!objectKey) {
+            throw new BadRequestException({
+                message: "Playback unavailable",
+            });
+        }
+
+        return this.service.getPlaybackUrl(objectKey);
     }
 }
