@@ -1,8 +1,17 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from "@nestjs/common";
 import {
-    type CreateProjectSchema,
-    createProjectSchema,
-} from "@repo/validators";
+    type CreateProjectDto,
+    type CreateProjectResponse,
+    createProjectDto,
+} from "@repo/contract/create-project";
+import {
+    type CreateVideoDto,
+    type CreateVideoResponse,
+    createVideoDto,
+} from "@repo/contract/create-video";
+import type { GetProjectResponse } from "@repo/contract/get-project";
+import type { GetProjectsListResponse } from "@repo/contract/get-projects-list";
+import type { GetVideosListResponse } from "@repo/contract/get-videos-list";
 
 import { AuthGuard, ProjectGuard } from "@/common/guards";
 import { ZodValidationPipe } from "@/common/pipes";
@@ -17,32 +26,42 @@ export class ProjectController {
     @Post()
     createProject(
         @Req() req: AuthRequest,
-        @Body(new ZodValidationPipe(createProjectSchema))
-        dto: CreateProjectSchema,
-    ) {
+        @Body(new ZodValidationPipe(createProjectDto))
+        dto: CreateProjectDto,
+    ): Promise<CreateProjectResponse> {
         return this.service.createProject({ ...dto, userId: req.user.id });
     }
 
     @Get()
-    getProjectsList(@Req() req: AuthRequest) {
+    getProjectsList(@Req() req: AuthRequest): Promise<GetProjectsListResponse> {
         return this.service.getProjectsList(req.user.id);
     }
 
     @UseGuards(ProjectGuard)
     @Get(":id")
-    getProject(@Req() req: AuthRequest & ProjectScopedRequest) {
+    getProject(
+        @Req() req: AuthRequest & ProjectScopedRequest,
+    ): GetProjectResponse {
         return req.project;
     }
 
     @UseGuards(ProjectGuard)
     @Post(":id/videos")
-    createVideo(@Req() req: ProjectScopedRequest) {
-        return this.service.createVideo(req.project.id);
+    createVideo(
+        @Req() req: ProjectScopedRequest,
+        @Body(new ZodValidationPipe(createVideoDto)) dto: CreateVideoDto,
+    ): Promise<CreateVideoResponse> {
+        return this.service.createVideo({
+            ...dto,
+            projectId: req.project.id,
+        });
     }
 
     @UseGuards(ProjectGuard)
     @Get(":id/videos")
-    getVideosList(@Req() req: ProjectScopedRequest) {
+    getVideosList(
+        @Req() req: ProjectScopedRequest,
+    ): Promise<GetVideosListResponse> {
         return this.service.getVideosList(req.project.id);
     }
 }

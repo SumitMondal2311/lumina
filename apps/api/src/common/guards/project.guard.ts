@@ -34,7 +34,7 @@ export class ProjectGuard implements CanActivate {
                 userId_projectId: { projectId, userId: req.user.id },
             },
             omit: { userId: true, projectId: true },
-            include: { project: true },
+            include: { project: { omit: { deletedAt: true } } },
         });
 
         if (!membership) {

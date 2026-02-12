@@ -20,6 +20,9 @@
         "worker#build": {
             "outputs": ["dist/**"]
         },
+        "@repo/contract#build": {
+            "outputs": ["dist/**"]
+        },
         "@repo/database#build": {
             "inputs": ["./src/generated/prisma/**", "../../.env"],
             "env": ["DATABASE_URL"],
@@ -51,9 +54,6 @@
         "@repo/queue#build": {
             "inputs": ["../../.env"],
             "env": ["REDIS_HOST", "REDIS_PORT"],
-            "outputs": ["dist/**"]
-        },
-        "@repo/validators#build": {
             "outputs": ["dist/**"]
         },
         "lint": {

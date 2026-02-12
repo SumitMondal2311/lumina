@@ -1,4 +1,4 @@
-@source "../**/*.{ts,tsx}";
+@source "../../../../packages/ui/src/**/*.{ts,tsx}";
 @import "tailwindcss";
 @import "tw-animate-css";
 

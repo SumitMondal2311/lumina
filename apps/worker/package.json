@@ -13,6 +13,8 @@
     "dependencies": {
         "@nestjs/common": "^11.0.1",
         "@nestjs/core": "^11.0.1",
+        "@repo/database": "workspace:*",
+        "@repo/queue": "workspace:*",
         "bullmq": "catalog:",
         "dotenv": "catalog:",
         "envalid": "catalog:",
@@ -22,8 +24,6 @@
     "devDependencies": {
         "@nestjs/cli": "^11.0.0",
         "@nestjs/schematics": "^11.0.0",
-        "@repo/database": "workspace:*",
-        "@repo/queue": "workspace:*",
         "@repo/tsconfig": "workspace:*",
         "source-map-support": "^0.5.21",
         "ts-loader": "^9.5.2",

@@ -9,5 +9,5 @@ export function generateObjectKey({
     videoId: string;
     fileType: string;
 }) {
-    return `uploads/${projectId}/raw/${videoId}.${extension(fileType)}`;
+    return `${projectId}/${videoId}/raw.${extension(fileType)}`;
 }

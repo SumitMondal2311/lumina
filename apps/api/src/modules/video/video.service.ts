@@ -1,14 +1,11 @@
-import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import {
-    BadRequestException,
-    Injectable,
-    NotFoundException,
-} from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { JobStatus, JobType, prisma, VideoStatus } from "@repo/database";
-import { VideoProcessingQueueData, videoProcessingQueue } from "@repo/queue";
-import { CreateUploadUrlSchema } from "@repo/validators";
-import { extension } from "mime-types";
+import {
+    type VideoProcessingQueueData,
+    videoProcessingQueue,
+} from "@repo/queue";
 
 import { env } from "@/configs/env";
 import { s3 } from "@/infra/s3.client";
@@ -50,36 +47,7 @@ export class VideoService {
         return { status: videoStatus };
     }
 
-    async createUploadUrl({
-        projectId,
-        videoId,
-        videoType,
-        videoSize,
-    }: CreateUploadUrlSchema & {
-        projectId: string;
-        videoId: string;
-    }) {
-        // 50MB
-        if (videoSize > 50 * 1000000) {
-            throw new BadRequestException({
-                message: "Video size must be under 50 MB",
-            });
-        }
-
-        const command = new PutObjectCommand({
-            Bucket: env.AWS_S3_BUCKET_NAME,
-            ContentType: videoType,
-            Key: `uploads/${projectId}/raw/${videoId}.${extension(videoType) ?? "bin"}`,
-        });
-
-        const preSignedUrl = await getSignedUrl(s3, command, {
-            expiresIn: 3600, // 1 hr
-        });
-
-        return { objectKey: command.input.Key, preSignedUrl };
-    }
-
-    async uploadComplete({
+    async confirmUpload({
         projectId,
         videoId,
         objectKey,
@@ -130,16 +98,15 @@ export class VideoService {
     }
 
     async getPlaybackUrl(objectKey: string) {
-        const playbackExpiresIn = 60 * 60;
         const playbackUrl = await getSignedUrl(
             s3,
             new GetObjectCommand({
                 Bucket: env.AWS_S3_BUCKET_NAME,
                 Key: objectKey,
             }),
-            { expiresIn: playbackExpiresIn },
+            { expiresIn: 3600 },
         );
 
-        return { playbackUrl, expiresIn: playbackExpiresIn };
+        return { playbackUrl };
     }
 }
