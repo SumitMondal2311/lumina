@@ -34,7 +34,7 @@ export class VideoGuard implements CanActivate {
                 id: videoId,
                 project: { members: { some: { userId: req.user.id } } },
             },
-            omit: { deletedAt: true },
+            omit: { duration: true, deletedAt: true },
         });
 
         if (!video) {

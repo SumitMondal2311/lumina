@@ -64,18 +64,20 @@ model Video {
   id        String      @id @default(cuid())
   projectId String
   title     String      @default("Untitled")
-  objectKey String?     @unique // e.g., S3 object key
+  objectKey String      @unique // e.g., S3 object key
   status    VideoStatus @default(UPLOADING)
   duration  Float? // Duration in seconds
   createdAt DateTime    @default(now())
 
-  metadata  Json? // Additional video metadata
-  deletedAt DateTime?
+  captionsKey  String? // e.g., S3 object key for captions file
+  thumbnailKey String? // e.g., S3 object key for thumbnail image
+  metadata     Json? // Additional video metadata
+  deletedAt    DateTime?
 
   chunks Chunk[]
   jobs   Job[]
 
-  project Project @relation(fields: [projectId], references: [id])
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@map("videos")
 }
@@ -96,8 +98,10 @@ model Chunk {
 
 enum JobType {
   TRANSCODE // Convert video to a standard format
+  GENERATE_THUMBNAIL // Create a thumbnail image from the video
   EXTRACT_AUDIO // Extract audio from video
   TRANSCRIBE // Convert audio to text
+  GENERATE_CAPTIONS // Create caption from transcribed text
   GENERATE_EMBEDDINGS // Create embeddings for transcribed text
 }
 
@@ -110,11 +114,10 @@ enum JobStatus {
 
 // Jobs represent background tasks to be performed on videos, such as transcoding, transcription, etc.
 model Job {
-  id       String    @id @default(cuid())
-  videoId  String
-  type     JobType
-  priority Int       @default(0)
-  status   JobStatus @default(PENDING)
+  id      String    @id @default(cuid())
+  videoId String
+  type    JobType
+  status  JobStatus @default(PENDING)
 
   payload   Json? // Additional data for the job
   lastError String? @db.Text

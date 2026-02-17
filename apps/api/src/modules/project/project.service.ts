@@ -1,6 +1,7 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { BadRequestException, Injectable } from "@nestjs/common";
+import cuid2 from "@paralleldrive/cuid2";
 import { ProjectMemberRole, prisma } from "@repo/database";
 
 import { generateObjectKey } from "@/common/utils";
@@ -61,10 +62,12 @@ export class ProjectService {
 
     async createVideo({
         projectId,
+        videoTitle,
         videoType,
         videoSize,
     }: {
         projectId: string;
+        videoTitle: string;
         videoType: string;
         videoSize: number;
     }) {
@@ -74,15 +77,16 @@ export class ProjectService {
             });
         }
 
-        const newVideo = await prisma.video.create({
-            data: { projectId },
-            select: { id: true, status: true, title: true },
-        });
-
+        const videoId = cuid2.createId();
         const objectKey = generateObjectKey({
             projectId,
-            videoId: newVideo.id,
+            videoId,
             fileType: videoType,
+        });
+
+        const newVideo = await prisma.video.create({
+            data: { id: videoId, projectId, title: videoTitle, objectKey },
+            select: { id: true, status: true, title: true },
         });
 
         const command = new PutObjectCommand({
@@ -95,7 +99,7 @@ export class ProjectService {
             expiresIn: 3600,
         });
 
-        return { video: newVideo, presignedUrl, objectKey };
+        return { video: newVideo, presignedUrl };
     }
 
     async getVideosList(projectId: string) {

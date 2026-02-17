@@ -1,5 +1,9 @@
-import type { Project, ProjectMember } from "@repo/database";
+import type { ProjectMemberRole } from "@repo/database";
 
-export type GetProjectResponse = Omit<Project, "deletedAt"> & {
-    membership: Pick<ProjectMember, "role" | "createdAt">;
+export type GetProjectResponse = {
+    id: string;
+    name: string;
+    createdAt: Date;
+} & {
+    membership: { role: ProjectMemberRole; createdAt: Date };
 };

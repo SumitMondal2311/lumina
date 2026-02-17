@@ -56,16 +56,22 @@ export class JobRunnerService implements OnModuleInit, OnModuleDestroy {
 
                 switch (bullJob.name) {
                     case JobType.TRANSCODE:
-                        await this.sleep(8000);
-                        break;
-                    case JobType.EXTRACT_AUDIO:
                         await this.sleep(3000);
                         break;
+                    case JobType.GENERATE_THUMBNAIL:
+                        await this.sleep(2000);
+                        break;
+                    case JobType.EXTRACT_AUDIO:
+                        await this.sleep(4000);
+                        break;
                     case JobType.TRANSCRIBE:
-                        await this.sleep(5000);
+                        await this.sleep(7000);
+                        break;
+                    case JobType.GENERATE_CAPTIONS:
+                        await this.sleep(6000);
                         break;
                     case JobType.GENERATE_EMBEDDINGS:
-                        await this.sleep(2000);
+                        await this.sleep(5000);
                         break;
                     default:
                         throw new Error(`Unhandled job: ${bullJob.name}`);

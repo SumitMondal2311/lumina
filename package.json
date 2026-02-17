@@ -2,15 +2,15 @@
     "name": "monorepo",
     "private": true,
     "scripts": {
-        "apps:build": "turbo build --filter web api worker",
         "build": "turbo build",
+        "build:apps": "turbo build --filter web api worker",
+        "build:pkgs": "turbo build --filter @repo/**",
         "check-types": "turbo check-types",
         "clean": "rm -rf **/*/dist",
         "dev": "turbo dev",
         "format": "biome format --write .",
         "lint": "turbo lint",
         "lint-staged": "lint-staged",
-        "pkgs:build": "turbo build --filter @repo/**",
         "prepare": "husky",
         "sort-pkg-json": "sort-package-json **/package.json --ignore **/node_modules/**/package.json",
         "start": "turbo start"

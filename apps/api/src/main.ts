@@ -1,4 +1,4 @@
-import { Logger } from "@nestjs/common";
+import { Logger, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
@@ -15,8 +15,8 @@ import { env } from "./configs/env";
     app.use(helmet());
 
     app.setGlobalPrefix("api/v1");
-
     app.enableShutdownHooks();
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
     const PORT = env.PORT ?? 4132;
     await app.listen(PORT, () => {

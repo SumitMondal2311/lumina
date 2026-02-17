@@ -1,3 +1,10 @@
-import type { Video } from "@repo/database";
+import type { Prisma, VideoStatus } from "@repo/database";
 
-export type GetVideoResponse = Omit<Video, "deletedAt">;
+export type GetVideoResponse = {
+    id: string;
+    title: string;
+    objectKey: string;
+    status: VideoStatus;
+    createdAt: Date;
+    metadata: Prisma.JsonValue;
+};
